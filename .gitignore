@@ -6,6 +6,11 @@ coverage.json
 typechain
 typechain-types
 
-#Hardhat files
+# Hardhat files
 cache
 artifacts
+
+# IDE
+.idea
+.DS_Store
+venv
