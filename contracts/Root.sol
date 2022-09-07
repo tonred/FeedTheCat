@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "./structs/DonateData.sol";
+import "./structs/DonatorData.sol";
 import "./Funding.sol";
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -10,8 +10,10 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 contract Root {
     address public _dao;
     address public _defaultToken;
-    address[] public _fundings;
-    mapping(address => DonateData) public _donators;
+    uint32 public _totalFundings;
+    mapping(uint32 => address) public _pendingFundings;
+    mapping(uint32 => address) public _activeFundings;
+    mapping(address => DonatorData) public _donators;
 
     event Donation(address funding, address donator, uint256 amount);
 
@@ -26,15 +28,20 @@ contract Root {
         _defaultToken = defaultToken;
     }
 
-    function createFunding(FundingInfo calldata info, File[] calldata files, NFTInfo[] calldata nfts) public onlyDao {
-        uint32 id = uint32(_fundings.length);
+    function createFunding(FundingInfo calldata info, File[] calldata files, NFTInfo[] calldata nfts) public {
+        uint32 id = _totalFundings++;
         Funding funding = new Funding(address(this), _defaultToken, id, info, files, nfts);
-        _fundings.push(address(funding));
+        _pendingFundings[id] = address(funding);
+    }
+
+    function approveFunding(uint32 fundingID) public onlyDao {
+        _activeFundings[fundingID] = _pendingFundings[fundingID];
+        delete _pendingFundings[fundingID];
     }
 
     function processDonation(uint32 fundingID, address donator, uint256 amount) public {
-        require(msg.sender == _fundings[fundingID], "Sender must be a funding");
-        DonateData storage data = _donators[donator];
+        require(msg.sender == _activeFundings[fundingID], "Sender must be an active funding");
+        DonatorData storage data = _donators[donator];
         _donators[donator].amount += amount;
         if (!data.isParticipate[fundingID]) {
             _donators[donator].count += 1;
