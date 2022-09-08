@@ -7,13 +7,15 @@ import "./Funding.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 
-contract Root {
+contract Root is Rewarder {
     address public _dao;
     address public _defaultToken;
     uint32 public _totalFundings;
     mapping(uint32 => address) public _pendingFundings;
     mapping(uint32 => address) public _activeFundings;
     mapping(address => DonatorData) public _donators;
+    mapping(uint32 => mapping(address => bool)) public _participation;
+    NFTInfo[] public _nfts;
 
     event Donation(address funding, address donator, uint256 amount);
 
@@ -23,9 +25,12 @@ contract Root {
         _;
     }
 
-    constructor(address dao, address defaultToken) payable {
+    constructor(address dao, address defaultToken, NFTInfo[] memory nfts)  {
         _dao = dao;
         _defaultToken = defaultToken;
+        for (uint i = 0; i < nfts.length; i++) {
+            _nfts.push(nfts[i]);
+        }
     }
 
     function createFunding(FundingInfo calldata info, File[] calldata files, NFTInfo[] calldata nfts) public {
@@ -41,27 +46,19 @@ contract Root {
 
     function processDonation(uint32 fundingID, address donator, uint256 amount) public {
         require(msg.sender == _activeFundings[fundingID], "Sender must be an active funding");
-        DonatorData storage data = _donators[donator];
+        DonatorData storage prevData = _donators[donator];
         _donators[donator].amount += amount;
-        if (!data.isParticipate[fundingID]) {
+        if (!_participation[fundingID][donator]) {
             _donators[donator].count += 1;
-            _donators[donator].isParticipate[fundingID] = true;
+            _participation[fundingID][donator] = true;
         }
-        _mintNFTs(donator, data.amount, data.count);
+        _mintCommonAchievements(donator, _donators[donator], _nfts, prevData);
+        _mintSpecialAchievements(donator, prevData);
         emit Donation(msg.sender, donator, amount);
     }
 
-    // todo as library (for root and funding)
-    function _mintNFTs(address donator, uint256 prevAmount, uint32 prevCount) private {
-//        uint256 amount = _donators[donator].amount;
-//        uint32 count = _donators[donator].count;
-//        for (uint i = 0; i < _nfts.length; i++) {
-//            uint256 minAmount = _nfts[i].minAmount;
-//            uint32 minCount = _nfts[i].minCount;
-//            if (amount >= minAmount && count >= minCount && (prevAmount < minAmount || prevCount < minCount)) {
-//                // todo mint
-//            }
-//        }
+    function _mintSpecialAchievements(address donator, DonatorData storage prevData) private {
+        // todo
     }
 
 }

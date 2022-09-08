@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
+import "./abstract/Rewarder.sol";
 import "./interfaces/IRoot.sol";
 import "./structs/File.sol";
 import "./structs/FundingInfo.sol";
@@ -8,10 +9,14 @@ import "./structs/FundingState.sol";
 import "./structs/NFTInfo.sol";
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";  // todo
 
 
-contract Funding {
+struct Rating {
+    address donator;
+    uint256 amount;
+}
+
+contract Funding is Rewarder {
     address public _root;
     address public _defaultToken;
     uint32 public _id;
@@ -23,9 +28,13 @@ contract Funding {
     uint256 public _finishTime;
 
     uint256 public _balance;
-    mapping(address => uint256) public _donates;
+    mapping(address => DonatorData) public _donates;
     bool public _finished;
     File[] public _reports;
+
+    Rating public _top1;
+    Rating public _top2;
+    Rating public _top3;
 
 
     event Donation(address donator, uint256 amount);
@@ -92,7 +101,7 @@ contract Funding {
 
     function refund() public inState(FundingState.EXPIRED) {
         // todo test optimization "address (memory) sender = msg.sender;"
-        uint256 amount = _donates[msg.sender];
+        uint256 amount = _donates[msg.sender].amount;
         require(amount > 0, "Nothing to refund");
         _balance -= amount;
         delete _donates[msg.sender];
@@ -123,12 +132,14 @@ contract Funding {
             _transfer(donator, returnAmount);
             amount -= returnAmount;
         }
-        uint256 prevAmount = _donates[donator];
+        DonatorData memory prevData = _donates[donator];
         _balance += amount;
-        _donates[donator] += amount;
-        _mintNFTs(donator, prevAmount);
+        _donates[donator].amount += amount;
+        _donates[donator].count += 1;
+        _mintCommonAchievements(donator, _donates[donator], _nfts, prevData);
         IRoot(_root).processDonation(_id, donator, amount);
         emit Donation(donator, amount);
+        _updateTop(donator);
         // todo avoid reentrancy! (see "onERC1155BatchReceived")!
         if (_balance == _info.target) {
             _finished = true;
@@ -136,12 +147,31 @@ contract Funding {
         }
     }
 
-    function _mintNFTs(address donator, uint256 prevAmount) private {
-        uint256 amount = _donates[donator];
-        for (uint i = 0; i < _nfts.length; i++) {
-            uint256 minAmount = _nfts[i].minAmount;
-            if (prevAmount < minAmount && amount >= minAmount) {
-                // todo mint
+    function _updateTop(address donator) private {
+        uint256 amount = _donates[donator].amount;
+        if (amount > _top1.amount) {
+            _top3 = _top2;
+            _top2 = _top1;
+            _top1 = Rating(donator, amount);
+        } else if (amount > _top2.amount) {
+            _top3 = _top2;
+            _top2 = Rating(donator, amount);
+        } else if (amount > _top3.amount) {
+            _top3 = Rating(donator, amount);
+        }
+    }
+
+    function _mintFinishedAchievements() private {
+        for (uint id = 0; id < _nfts.length; id++) {
+            NFTInfo storage nft = _nfts[id];
+            if (nft.onlyTop1 && _top1.amount > 0) {
+                _mintAchievement(_top1.donator, id);
+            }
+            if (nft.onlyTop2 && _top2.amount > 0) {
+                _mintAchievement(_top2.donator, id);
+            }
+            if (nft.onlyTop3 && _top3.amount > 0) {
+                _mintAchievement(_top3.donator, id);
             }
         }
     }

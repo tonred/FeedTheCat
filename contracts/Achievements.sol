@@ -8,17 +8,17 @@ contract Achievements is ERC1155 {
 
     address public _owner;
 
+    modifier onlyOwner() {
+        require(msg.sender == _owner, "Sender is not owner");
+        _;
+    }
+
     constructor(address owner, string memory uri) ERC1155(uri) {
         _owner = owner;
     }
 
-    function mintBatchSingle(address to, uint256[] memory ids) public {
-        require(msg.sender == _owner, "Sender is not owner");
-        uint256[] memory amounts = new uint256[](ids.length);
-        for (uint i = 0; i < ids.length; i++) {
-            amounts[i] = 1;
-        }
-        _mintBatch(to, ids, amounts, "");
+    function mint(address to, uint256 id) public onlyOwner {
+        _mint(to, id, 1, "");
     }
 
 }
