@@ -27,6 +27,7 @@ contract Funding is Rewarder, ReentrancyGuard {
     uint256 public _finishTime;
 
     uint256 public _balance;
+    bool public _accepted;
     bool public _finished;
     File[] public _reports;
 
@@ -38,6 +39,11 @@ contract Funding is Rewarder, ReentrancyGuard {
     event Donation(address donator, uint256 amount);
     event Finished();
 
+
+    modifier onlyRoot() {
+        require(msg.sender == _root, "Sender must be a root");
+        _;
+    }
 
     modifier onlyRootOrSpender() {
         require(msg.sender == _root || msg.sender == _info.spender, "Wrong sender");
@@ -77,9 +83,15 @@ contract Funding is Rewarder, ReentrancyGuard {
             return FundingState.FINISHED;
         } else if (block.timestamp > _finishTime) {
             return FundingState.EXPIRED;
-        } else {
+        } else if (_accepted) {
             return FundingState.ACTIVE;
+        } else {
+            return FundingState.PENDING;
         }
+    }
+
+    function accept() public onlyRoot {
+        _accepted = true;
     }
 
     function donateDefault(uint256 amount) public inState(FundingState.ACTIVE) nonReentrant {
@@ -119,8 +131,7 @@ contract Funding is Rewarder, ReentrancyGuard {
         }
     }
 
-    function emergencyFinish() public inState(FundingState.ACTIVE) {
-        require(msg.sender == _root, "Wrong sender");
+    function emergencyFinish() public onlyRoot inState(FundingState.ACTIVE) {
         _finishTime = block.timestamp;
     }
 

@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
+import "./interfaces/IRoot.sol";
 import "./Funding.sol";
 
 
-contract Root is Rewarder {
+contract Root is IRoot, Rewarder {
     address public _dao;
     address public _defaultToken;
     uint32 public _totalFundings;
@@ -33,18 +34,20 @@ contract Root is Rewarder {
         }
     }
 
-    function createFunding(FundingInfo calldata info, File[] calldata files, NFTInfo[] calldata nfts) public {
+    function createFunding(FundingInfo calldata info, File[] calldata files, NFTInfo[] calldata nfts) public override {
         uint32 id = _totalFundings++;
         Funding funding = new Funding(address(this), _defaultToken, id, info, files, nfts);
         _pendingFundings[id] = address(funding);
     }
 
-    function acceptFunding(uint32 fundingID) public onlyDao {
-        _activeFundings[fundingID] = _pendingFundings[fundingID];
+    function acceptFunding(uint32 fundingID) public override onlyDao {
+        address funding = _pendingFundings[fundingID];
+        _activeFundings[fundingID] = funding;
         delete _pendingFundings[fundingID];
+        Funding(funding).accept();
     }
 
-    function processDonation(uint32 fundingID, address donator, uint256 amount) public {
+    function processDonation(uint32 fundingID, address donator, uint256 amount) public override {
         require(msg.sender == _activeFundings[fundingID], "Sender must be an active funding");
         DonatorData storage prevData = _donates[donator];
         _donates[donator].amount += amount;
@@ -57,7 +60,7 @@ contract Root is Rewarder {
         emit Donation(msg.sender, donator, amount);
     }
 
-    function emergencyFinish(uint32 fundingID) public onlyDao {
+    function emergencyFinish(uint32 fundingID) public override onlyDao {
         Funding(_activeFundings[fundingID]).emergencyFinish();
     }
 

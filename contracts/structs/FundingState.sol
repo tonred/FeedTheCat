@@ -3,5 +3,5 @@ pragma solidity ^0.8.9;
 
 
 enum FundingState {
-    ACTIVE, EXPIRED, FINISHED
+    PENDING, ACTIVE, EXPIRED, FINISHED
 }
