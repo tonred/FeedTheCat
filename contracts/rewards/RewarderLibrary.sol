@@ -9,7 +9,6 @@ import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 
 library RewarderLibrary {
 
-    // todo ???
     function deploy(address owner, string memory uri) public returns (Collection) {
         return new Collection(owner, uri);
     }

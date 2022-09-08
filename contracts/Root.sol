@@ -65,7 +65,7 @@ contract Root is IRoot, Rewarder {
     }
 
     function _mintSpecialNFTs(address donator, DonatorData storage prevData) private {
-        // todo
+        // todo add special NFTs logic
     }
 
 }

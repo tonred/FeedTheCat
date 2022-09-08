@@ -99,19 +99,7 @@ contract Funding is Rewarder, ReentrancyGuard {
         _processDonation(msg.sender, amount);
     }
 
-    function donateSpecific(
-        address token,
-        uint256 amount,
-        bytes calldata autoRouterData
-    ) public inState(FundingState.ACTIVE) nonReentrant {
-        // todo auto router (uniswap)
-        token; amount; autoRouterData;
-        uint256 amountInDefault = 0;
-        _processDonation(msg.sender, amountInDefault);
-    }
-
     function refund() public inState(FundingState.EXPIRED) {
-        // todo test optimization "address (memory) sender = msg.sender;"
         uint256 amount = _donates[msg.sender].amount;
         require(amount > 0, "Nothing to refund");
         _balance -= amount;
