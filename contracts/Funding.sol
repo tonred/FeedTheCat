@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "./abstract/Rewarder.sol";
 import "./interfaces/IRoot.sol";
+import "./rewards/Rewarder.sol";
 import "./structs/File.sol";
 import "./structs/FundingInfo.sol";
 import "./structs/FundingState.sol";
-import "./structs/NFTInfo.sol";
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 
 struct Rating {
@@ -16,19 +16,17 @@ struct Rating {
     uint256 amount;
 }
 
-contract Funding is Rewarder {
+contract Funding is Rewarder, ReentrancyGuard {
     address public _root;
     address public _defaultToken;
     uint32 public _id;
 
     FundingInfo public _info;
     File[] public _files;
-    NFTInfo[] public _nfts;
     uint256 public _startTime;
     uint256 public _finishTime;
 
     uint256 public _balance;
-    mapping(address => DonatorData) public _donates;
     bool public _finished;
     File[] public _reports;
 
@@ -59,7 +57,7 @@ contract Funding is Rewarder {
         FundingInfo memory info,
         File[] memory files,
         NFTInfo[] memory nfts
-    ) {
+    ) Rewarder(info.nftUri) {
         _root = root;
         _defaultToken = defaultToken;
         _id = id;
@@ -70,7 +68,6 @@ contract Funding is Rewarder {
         for (uint i = 0; i < nfts.length; i++) {
             _nfts.push(nfts[i]);
         }
-
         _startTime = block.timestamp;
         _finishTime = _startTime + info.duration;
     }
@@ -78,8 +75,6 @@ contract Funding is Rewarder {
     function state() public view returns (FundingState) {
         if (_finished) {
             return FundingState.FINISHED;
-        } else if (_balance == _info.target) {
-            return FundingState.COLLECTED;
         } else if (block.timestamp > _finishTime) {
             return FundingState.EXPIRED;
         } else {
@@ -87,15 +82,19 @@ contract Funding is Rewarder {
         }
     }
 
-    function donateDefault(uint256 amount) public inState(FundingState.ACTIVE) {
+    function donateDefault(uint256 amount) public inState(FundingState.ACTIVE) nonReentrant {
         IERC20(_defaultToken).transferFrom(msg.sender, address(this), amount);
         _processDonation(msg.sender, amount);
     }
 
-    function donateSpecific(address token, uint256 amount, bytes calldata autoRouterData) public inState(FundingState.ACTIVE) {
+    function donateSpecific(
+        address token,
+        uint256 amount,
+        bytes calldata autoRouterData
+    ) public inState(FundingState.ACTIVE) nonReentrant {
         // todo auto router (uniswap)
         token; amount; autoRouterData;
-        uint256 amountInDefault = 0;  // todo
+        uint256 amountInDefault = 0;
         _processDonation(msg.sender, amountInDefault);
     }
 
@@ -136,14 +135,14 @@ contract Funding is Rewarder {
         _balance += amount;
         _donates[donator].amount += amount;
         _donates[donator].count += 1;
-        _mintCommonAchievements(donator, _donates[donator], _nfts, prevData);
+        _mintCommonNFTs(donator, prevData);
         IRoot(_root).processDonation(_id, donator, amount);
         emit Donation(donator, amount);
         _updateTop(donator);
-        // todo avoid reentrancy! (see "onERC1155BatchReceived")!
         if (_balance == _info.target) {
             _finished = true;
             emit Finished();
+            _mintFinishedNFTs();
         }
     }
 
@@ -161,17 +160,17 @@ contract Funding is Rewarder {
         }
     }
 
-    function _mintFinishedAchievements() private {
+    function _mintFinishedNFTs() private {
         for (uint id = 0; id < _nfts.length; id++) {
             NFTInfo storage nft = _nfts[id];
             if (nft.onlyTop1 && _top1.amount > 0) {
-                _mintAchievement(_top1.donator, id);
+                _mintNFT(_top1.donator, id);
             }
             if (nft.onlyTop2 && _top2.amount > 0) {
-                _mintAchievement(_top2.donator, id);
+                _mintNFT(_top2.donator, id);
             }
             if (nft.onlyTop3 && _top3.amount > 0) {
-                _mintAchievement(_top3.donator, id);
+                _mintNFT(_top3.donator, id);
             }
         }
     }

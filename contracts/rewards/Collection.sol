@@ -4,7 +4,7 @@ pragma solidity ^0.8.9;
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 
 
-contract Achievements is ERC1155 {
+contract Collection is ERC1155 {
 
     address public _owner;
 

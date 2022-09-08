@@ -8,5 +8,5 @@ struct NFTInfo {
     bool onlyTop1;  // only for certain fundings
     bool onlyTop2;  // only for certain fundings
     bool onlyTop3;  // only for certain fundings
-    bool special;  // only for global achievements
+    bool special;  // only for global rewards
 }
