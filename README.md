@@ -16,7 +16,7 @@ as a reward for donation and have ability to help with validation of fundings
 * Staking NFTs to allow active donators to validate fundings (in progress)
 
 ## Technologies:
-* Polygon network
+* Polygon blockchain
 * Solidity `^0.8.9`
 * Hardhat as dev env
 * IPFS for storing files
@@ -44,12 +44,12 @@ between all fundings, and local rewards for every funding. The workflow is next:
 1) Donators can choose a favorite fundings from list and support them
 2) As a reward, donators will receive NFTs
 3) Reward NFTs can be staked in order to receive limited amount of DAO tokens.
-Using these tokens, top donaters can help DAO members to validate fundings (in progress)
+Using these tokens, top donators can help DAO members to validate fundings (in progress)
 
-### DAO
+### DAO (Aragon)
 DAO consists of trusted persons that verify all documents, and accept
 proposal if funding is really needed. These persons have 90% of DAO tokens.
-Other 10% will distribute among top donaters
+Other 10% will distribute among top donators
 
 Besides this, DAO members can emergency stop any funding in any moments.
 Also, they can add new NFT global rewards
