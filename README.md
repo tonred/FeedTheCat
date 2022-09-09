@@ -96,6 +96,19 @@ Every funding must have:
 3) List of NFTs that will be created only for this funding,
 and requirements for getting them
 
+**Creating of funding:**
+```mermaid
+sequenceDiagram
+    autonumber
+
+    User -) Root: createFunding
+    Root ->> Funding: constructor
+    Root ->> DAO: newVoting
+    DAO members -) DAO: <verify and accept>
+    DAO ->> Root: acceptFunding
+    Root ->> Funding: accept
+```
+
 Funding can have such states (see [FundingState.sol](contracts/structs/FundingState.sol)):
 1) `PENDING` - funding is waiting for DAO accepting
 2) `ACTIVE` - anyone can donate to support it
