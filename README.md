@@ -52,6 +52,8 @@ Using these tokens, top donators can help DAO members to validate fundings (in p
 
 [Sample of reward NFT](https://polygonscan.com/token/0x1320643c3d4544156fbbedfb5e42e10da6d206eb)
 
+![funding](docs/funding.png)
+
 ### DAO (Aragon)
 DAO consists of trusted persons that verify all documents, and accept
 proposal if funding is really needed. These persons have 90% of DAO tokens.
