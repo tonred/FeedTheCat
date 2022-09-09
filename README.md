@@ -6,6 +6,8 @@ Polygon Root: `0x906A7aB761d9137A6B64F7F7b532F3f9458498Ff`
 
 Website: [https://feedthecat.org](https://feedthecat.org)
 
+DAO (Aragon): [https://client.aragon.org/#/feedthecat/](https://client.aragon.org/#/feedthecat/) at `0x9Ea69F795c34308491945E816Afb1C8f06044446`
+
 Platform for creating safe funding to help Ukraine. Donators will receive NFTs
 as a reward for donation and have ability to help with validation of fundings
 
