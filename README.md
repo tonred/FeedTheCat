@@ -11,6 +11,8 @@ DAO (Aragon): [https://client.aragon.org/#/feedthecat/](https://client.aragon.or
 Platform for creating safe funding to help Ukraine. Donators will receive NFTs
 as a reward for donation and have ability to help with validation of fundings
 
+![cats](docs/cats.png)
+
 ## Key features:
 * Approve funding via DAO
 * Multiple fundings support
@@ -47,6 +49,8 @@ between all fundings, and local rewards for every funding. The workflow is next:
 2) As a reward, donators will receive NFTs
 3) Reward NFTs can be staked in order to receive limited amount of DAO tokens.
 Using these tokens, top donators can help DAO members to validate fundings (in progress)
+
+[Sample of reward NFT](https://polygonscan.com/token/0x1320643c3d4544156fbbedfb5e42e10da6d206eb)
 
 ### DAO (Aragon)
 DAO consists of trusted persons that verify all documents, and accept
@@ -96,7 +100,7 @@ Every funding must have:
     * `duration` - duration of funding in seconds (from time when DAO accept it)
 2) Files that proofs reality of funding and reality of creator
 3) List of NFTs that will be created only for this funding,
-and requirements for getting them
+and requirements for getting them. NFT is ERC1155 compatible token
 
 **Creating of funding:**
 ```mermaid
