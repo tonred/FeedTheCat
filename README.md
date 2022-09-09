@@ -2,7 +2,7 @@
 
 Project Github: [https://github.com/tonred/FeedTheCat](https://github.com/tonred/FeedTheCat)
 
-Polygon Root: `0x906A7aB761d9137A6B64F7F7b532F3f9458498Ff`
+Polygon Root: `0xd4FA89528eeE80a6F5c0AEDE34d26e324F23c0E5`
 
 Website: [https://feedthecat.org](https://feedthecat.org)
 
