@@ -2,9 +2,9 @@
 
 Project Github: [https://github.com/tonred/FeedTheCat](https://github.com/tonred/FeedTheCat)
 
-Polygon Root: `...`
+Polygon Root: `0x906A7aB761d9137A6B64F7F7b532F3f9458498Ff`
 
-Website: [https://...](...)
+Website: [https://feedthecat.org](https://feedthecat.org)
 
 Platform for creating safe funding to help Ukraine. Donators will receive NFTs
 as a reward for donation and have ability to help with validation of fundings
