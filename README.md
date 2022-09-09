@@ -60,6 +60,8 @@ Other 10% will distribute among top donators
 Besides this, DAO members can emergency stop any funding in any moments.
 Also, they can add new NFT global rewards
 
+![voting](docs/voting.jpg)
+
 ## Technical description
 
 ### Root
