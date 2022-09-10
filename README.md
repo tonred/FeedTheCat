@@ -2,7 +2,7 @@
 
 Project Github: [https://github.com/tonred/FeedTheCat](https://github.com/tonred/FeedTheCat)
 
-Polygon Root: `0x906A7aB761d9137A6B64F7F7b532F3f9458498Ff`
+Polygon Root: `0xd4FA89528eeE80a6F5c0AEDE34d26e324F23c0E5`
 
 Website: [https://feedthecat.org](https://feedthecat.org)
 
@@ -10,6 +10,8 @@ DAO (Aragon): [https://client.aragon.org/#/feedthecat/](https://client.aragon.or
 
 Platform for creating safe funding to help Ukraine. Donators will receive NFTs
 as a reward for donation and have ability to help with validation of fundings
+
+![cats](docs/cats.png)
 
 ## Key features:
 * Approve funding via DAO
@@ -48,6 +50,10 @@ between all fundings, and local rewards for every funding. The workflow is next:
 3) Reward NFTs can be staked in order to receive limited amount of DAO tokens.
 Using these tokens, top donators can help DAO members to validate fundings (in progress)
 
+[Sample of reward NFT](https://polygonscan.com/token/0x1320643c3d4544156fbbedfb5e42e10da6d206eb)
+
+![funding](docs/funding.png)
+
 ### DAO (Aragon)
 DAO consists of trusted persons that verify all documents, and accept
 proposal if funding is really needed. These persons have 90% of DAO tokens.
@@ -55,6 +61,8 @@ Other 10% will distribute among top donators
 
 Besides this, DAO members can emergency stop any funding in any moments.
 Also, they can add new NFT global rewards
+
+![voting](docs/voting.jpg)
 
 ## Technical description
 
@@ -96,7 +104,7 @@ Every funding must have:
     * `duration` - duration of funding in seconds (from time when DAO accept it)
 2) Files that proofs reality of funding and reality of creator
 3) List of NFTs that will be created only for this funding,
-and requirements for getting them
+and requirements for getting them. NFT is ERC1155 compatible token
 
 **Creating of funding:**
 ```mermaid
