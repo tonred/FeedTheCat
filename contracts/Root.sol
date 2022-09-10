@@ -4,6 +4,7 @@ pragma solidity ^0.8.9;
 import "./interfaces/IRoot.sol";
 import "./Funding.sol";
 
+import "./structs/Interface.sol";
 
 contract Root is IRoot, Rewarder {
     address public _dao;
@@ -13,7 +14,8 @@ contract Root is IRoot, Rewarder {
     mapping(uint32 => address) public _activeFundings;
     mapping(uint32 => mapping(address => bool)) public _participation;
 
-    event Donation(address funding, address donator, uint256 amount);
+    event Donation(address indexed funding, address indexed donator, uint256 amount);
+    event NewFunding(uint32 id, address funding, string title, uint256 target, uint32 duration);
 
 
     modifier onlyDao {
@@ -60,8 +62,38 @@ contract Root is IRoot, Rewarder {
         emit Donation(msg.sender, donator, amount);
     }
 
+    function fundingsDetails() public view returns (FundingsDetails[] memory){
+        FundingsDetails[] memory fundings = new FundingsDetails[](_totalFundings);
+        for (uint32 i = 0; i < _totalFundings; i++) {
+            address fundingAddr = _activeFundings[i] != address(0) ? _activeFundings[i] : _pendingFundings[i];
+            Funding funding = Funding(fundingAddr);
+            FundingsDetails memory details;
+            details.id = i;
+            details.addr = fundingAddr;
+            details.collection = address(funding._collection());
+            (string memory title,,, uint256 target,,) = funding._info();
+            details.title = title;
+            details.target = target;
+            details.balance = funding._balance();
+            details.finishTime = funding._finishTime();
+            details.state = funding.state();
+            fundings[i] = details;
+        }
+        return fundings;
+    }
+
     function emergencyFinish(uint32 fundingID) public override onlyDao {
         Funding(_activeFundings[fundingID]).emergencyFinish();
+    }
+
+    function addNfts(NFTInfo[] memory nfts) public onlyDao {
+        for (uint i = 0; i < nfts.length; i++) {
+            _nfts.push(nfts[i]);
+        }
+    }
+
+    function setDao(address dao) public onlyDao {
+        _dao = dao;
     }
 
     function _mintSpecialNFTs(address donator, DonatorData storage prevData) private {

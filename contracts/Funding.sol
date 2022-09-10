@@ -9,6 +9,7 @@ import "./structs/FundingState.sol";
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "./structs/Interface.sol";
 
 
 struct Rating {
@@ -74,14 +75,22 @@ contract Funding is Rewarder, ReentrancyGuard {
         for (uint i = 0; i < nfts.length; i++) {
             _nfts.push(nfts[i]);
         }
-        _startTime = block.timestamp;
-        _finishTime = _startTime + info.duration;
+    }
+
+    function fullInfo() public view returns(FundingDetailsFull memory) {
+        return FundingDetailsFull(
+            _info, _files, _nfts, address(_collection),
+            _startTime, _finishTime,
+            _balance, _reports,
+            _top1, _top2, _top3,
+            state()
+        );
     }
 
     function state() public view returns (FundingState) {
         if (_finished) {
             return FundingState.FINISHED;
-        } else if (block.timestamp > _finishTime) {
+        } else if (_finishTime > 0 && block.timestamp > _finishTime) {
             return FundingState.EXPIRED;
         } else if (_accepted) {
             return FundingState.ACTIVE;
@@ -92,6 +101,8 @@ contract Funding is Rewarder, ReentrancyGuard {
 
     function accept() public onlyRoot {
         _accepted = true;
+        _startTime = block.timestamp;
+        _finishTime = _startTime + _info.duration;
     }
 
     function donateDefault(uint256 amount) public inState(FundingState.ACTIVE) nonReentrant {

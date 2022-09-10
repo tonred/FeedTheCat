@@ -14,7 +14,7 @@ contract Rewarder {
     NFTInfo[] public _nfts;
 
     constructor(string memory uri) {
-        _collection = RewarderLibrary.deploy(msg.sender, uri);
+        _collection = RewarderLibrary.deploy(address(this), uri);
     }
 
     function _mintCommonNFTs(address donator, DonatorData memory prevData) internal {
